@@ -1,5 +1,7 @@
 const API_KEY = "569cffb67a9a40ddac1ae92901b5f92c";
 
+const DAYS_OF_THE_WEEK = ['sun', 'mon', 'tue', 'wed', 'thus', 'fri', 'sat'];
+
 const getCurrentWeatherData = async() => {
     const city = "kolkata";
     const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
@@ -17,7 +19,7 @@ const getHourlyForecast = async({name: city}) => {
 
 
 const formatTemperature = (temp) => `${temp?.toFixed(1)}°`;
-const createUrl = (icon) => `https://openweathermap.org/img/wn/${icon}02x.png`
+const createUrl = (icon) => `https://openweathermap.org/img/wn/${icon}@2x.png`;
 
 loadCurrentForecast = ({name, main: {temp, temp_max, temp_min}, weather:[{description}] }) => {
     const currentForecastElement = document.querySelector("#current-forecast");
@@ -29,7 +31,7 @@ loadCurrentForecast = ({name, main: {temp, temp_max, temp_min}, weather:[{descri
 }
 
 const loadHourlyForecast = (hourlyForecast) =>{
- console.log(hourlyForecast);
+
  let dataForTwelveHours = hourlyForecast.slice(1, 12);
  const hourlyContainer = document.querySelector(".hourly-container");
  let innerHmtlString = "";
@@ -45,6 +47,30 @@ const loadHourlyForecast = (hourlyForecast) =>{
 
 }
 
+const calculateDayWiseForecast = (hourlyForecast) => {
+  let dayWiseForecast = new Map();
+  for(let forecast of hourlyForecast) {
+    const [date] = forecast.dt_txt.split(" ");
+    const dayOfTheWeek = DAYS_OF_THE_WEEK[new Date(date).getDay()];
+    console.log(dayOfTheWeek);
+    if(dayWiseForecast.has(dayOfTheWeek)) {
+       let forecastForTheDay = dayWiseForecast.get(dayOfTheWeek);
+       forecastForTheDay.push(forecast);
+       dayWiseForecast.set(dayOfTheWeek, forecastForTheDay);
+    } else {
+      dayWiseForecast.set(dayOfTheWeek, [forecast])
+    }
+  }
+  console.log(dayWiseForecast);
+}
+
+
+
+const loadFiveDayForecast = (hourlyForecast) => {
+  const dayWiseForecast = calculateDayWiseForecast(hourlyForecast);
+}
+
+
 const loadFeelsLike = ({main: {feels_like}}) => {
   const container = document.querySelector("#feels-like");
   container.querySelector(".feels-like-temp").textContent = formatTemperature(feels_like);
@@ -59,6 +85,7 @@ document.addEventListener("DOMContentLoaded", async()=> {
   loadCurrentForecast(currentWeather);
   const hourlyForecast = await getHourlyForecast(currentWeather);
   loadHourlyForecast(hourlyForecast);
+  loadFiveDayForecast(hourlyForecast)
 loadFeelsLike(currentWeather);
 loadHumidity(currentWeather);
 })
