@@ -74,9 +74,7 @@ body {
     overflow-x: auto;
     gap: var(--spacing-medium);
  }
- #hourly-forecast .hourly-container .time {
-    
- }
+
  #hourly-forecast .hourly-container .icon {
     height: 100px;
     width: 100px;
@@ -109,6 +107,11 @@ body {
     font-weight: var(--font-semibold);
 
 }
+
+.five-day-forecast-container .day-wise-forecast .max-temp {
+  justify-self: end;
+}
+
 .five-day-forecast-container .day-wise-forecast .min-temp {
     opacity: 50%;
 }
@@ -117,7 +120,10 @@ body {
     width: 75px;
     height: 75px;
 }
-
+.five-day-forecast-container .day-wise-forecast .day {
+   text-transform: capitalize;
+   justify-self: start;
+}
 #feels-like {
     grid-area: feelslike;
     text-align: center;
