@@ -107,7 +107,9 @@ body {
     font-weight: var(--font-semibold);
 
 }
-
+body {
+    background-color: blue;
+}
 .five-day-forecast-container .day-wise-forecast .max-temp {
   justify-self: end;
 }
