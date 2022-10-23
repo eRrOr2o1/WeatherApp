@@ -1,15 +1,22 @@
 const API_KEY = "569cffb67a9a40ddac1ae92901b5f92c";
 
 const DAYS_OF_THE_WEEK = ['sun', 'mon', 'tue', 'wed', 'thus', 'fri', 'sat'];
+ 
+let selectedCityText;
+let selectedCity;
+const getCitiesUsingGeolocation = async (searchText) => {
+  const response = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${searchText}&limit=5&appid=${API_KEY}`);
+  return response.json();
+}
 
-const getCurrentWeatherData = async() => {
-    const city = "kolkata";
-    const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
+const getCurrentWeatherData = async({lat, lon, name: city}) => {
+    const url = lat && lon ?`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric` : `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+    const response = await fetch(url);
     return response.json();
 }
 
 const getHourlyForecast = async({name: city}) => {
-  const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}`);
+  const response = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`);
   const data = await response.json();
   return data.list.map(forecast =>{
     const { main: {temp, temp_max, temp_min}, dt, dt_txt, weather: [{description, icon}] } = forecast;
@@ -32,7 +39,7 @@ const loadCurrentForecast = ({name, main: {temp, temp_max, temp_min}, weather:[{
 
 const loadHourlyForecast = ({main: {temp: tempNow}, weather: [{icon: iconNow}]}, hourlyForecast) =>{
 const timeFormater = Intl.DateTimeFormat("en", {
-  hour12:true, hour:"numeric"
+  hour12: true, hour:"numeric"
  })
  let dataForTwelveHours = hourlyForecast.slice(2, 14);
  const hourlyContainer = document.querySelector(".hourly-container");
@@ -68,7 +75,7 @@ const calculateDayWiseForecast = (hourlyForecast) => {
       dayWiseForecast.set(dayOfTheWeek, [forecast])
     }
   }
-  console.log(dayWiseForecast);
+
   for(let [key, value] of dayWiseForecast) {
     let temp_min = Math.min(...Array.from(value, val => val.temp_min));
     let temp_max = Math.max(...Array.from(value, val => val.temp_max));
@@ -76,7 +83,7 @@ const calculateDayWiseForecast = (hourlyForecast) => {
     dayWiseForecast.set(key, {temp_min, temp_max, icon: value.find(v => v.icon).icon})
 
   }
-  console.log(dayWiseForecast)
+
   return dayWiseForecast;
 }
 
@@ -110,12 +117,77 @@ const loadHumidity = ({main: {humidity}}) => {
   container.querySelector(".humidity-value").textContent = `${humidity} %`;
 }
 
-document.addEventListener("DOMContentLoaded", async()=> {
-  const currentWeather = await getCurrentWeatherData();
+const loadForecastUsingGeolocation = ()=> {
+  navigator.geolocation.getCurrentPosition(({coords})=> {
+   const {latitude: lat, longitude:lon}= coords;
+   selectedCity = {lat, lon};
+   loadData();
+  }, error => console.log(error))
+}
+
+const loadData = async() => {
+  const currentWeather = await getCurrentWeatherData(selectedCity);
+  
   loadCurrentForecast(currentWeather);
   const hourlyForecast = await getHourlyForecast(currentWeather);
   loadHourlyForecast(currentWeather, hourlyForecast);
   loadFiveDayForecast(hourlyForecast)
 loadFeelsLike(currentWeather);
 loadHumidity(currentWeather);
+}
+
+
+
+function debounce(func) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(()=> {
+      func.apply(this, args)
+    }, 500);
+  }
+}  
+
+
+
+const onSearchChange = async (event) => {
+  let { value } = event.target;
+  if(!value) {
+    selectedCity = null;
+    selectedCityText = "";
+  }
+  if(value && (selectedCityText !== value)) {
+    const listOfCities = await getCitiesUsingGeolocation(value);
+    let options ="";
+    for(let {lat, lon, name, state, country} of listOfCities) {
+     options += ` <option data-city-details='${JSON.stringify({lat, lon, name})}' value="${name}, ${state}, ${country}"></option>`
+    }
+    document.querySelector("#cities").innerHTML = options;
+   
+    
+   }
+  }
+ 
+
+const handleCitySelection = (event) => {
+   selectedCityText = event.target.value;
+   let options = document.querySelector("cities > option");
+   if(options?.length){
+    let selectedOption = Array.form(options).find(opt => opt.value === selectedCityText);
+    selectedCity = JSON.parse(selectedOption.getAttribute("data-city-details"));
+    loadData();
+   }
+}
+
+const debounceSearch = debounce((event)=> onSearchChange(event))
+
+
+
+document.addEventListener("DOMContentLoaded", async()=> {
+ loadForecastUsingGeolocation();
+
+  const searchInput = document.querySelector("#search");
+  searchInput.addEventListener("input", debounceSearch)
+   searchInput.addEventListener("change", handleCitySelection)
+ 
 })

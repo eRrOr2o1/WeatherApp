@@ -32,7 +32,9 @@ body {
 .container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-areas: "current current"
+    grid-template-areas: 
+    "search search"
+    "current current"
     "hourly hourly"
     "fiveday fiveday"
     "feelslike humidity";
@@ -45,7 +47,22 @@ body {
     border: 1px solid;
     border-radius: var(--spacing-regular);
     padding: var(--spacing-regular);
+
 }
+
+#search {
+    grid-area: search;
+    font-size: var(--font-large);
+    border-radius: var(--font-regular);
+    padding: var(--spacing-medium);
+}
+
+
+
+
+
+/* current forecast */
+
 
 #current-forecast {
     grid-area: current;
@@ -58,6 +75,8 @@ body {
     font-size: var(--font-regular);
     font-weight: var(--font-semibold);
 }
+
+
 
 /* hourly forecast */
 
@@ -107,9 +126,7 @@ body {
     font-weight: var(--font-semibold);
 
 }
-body {
-    background-color: blue;
-}
+
 .five-day-forecast-container .day-wise-forecast .max-temp {
   justify-self: end;
 }
