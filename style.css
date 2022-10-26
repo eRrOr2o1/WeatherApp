@@ -18,6 +18,7 @@
 
 h1, h2 {
     margin: 0;
+    padding: 1rem 0;
     
 }
 p {
@@ -57,9 +58,9 @@ body {
 
 #search {
     grid-area: search;
-    font-size: var(--font-large);
+    font-size: var(--font-regular);
     border-radius: var(--font-regular);
-    padding: var(--spacing-medium);
+    padding: var(--spacing-regular);
     background-color: rgb(36,154,191, 0.2);
     border: none;
 }
@@ -118,11 +119,13 @@ background-color: rgb(36,154,191, 0.3)
     grid-area: fiveday;
     text-align: center;
     background-color: rgb(36,154,191, 0.3)
+   
 }
 
 #five-day-forecast .five-day-forecast-container {
     display: grid;
     grid-auto-flow: row;
+    padding: 0 2rem;
 }
 .five-day-forecast-container .day-wise-forecast {
     display: grid;
