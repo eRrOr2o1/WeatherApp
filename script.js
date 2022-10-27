@@ -10,7 +10,7 @@ const getCitiesUsingGeolocation = async (searchText) => {
 }
 
 const getCurrentWeatherData = async({lat, lon, name: city}) => {
-    const url = lat && lon ?`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric` : `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+    const url = lat && lon ? `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric` : `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
     const response = await fetch(url);
     return response.json();
     
@@ -67,8 +67,7 @@ const calculateDayWiseForecast = (hourlyForecast) => {
   let dayWiseForecast = new Map();
   for(let forecast of hourlyForecast) {
     const [date] = forecast.dt_txt.split(" ");
-    const dayOfTheWeek = DAYS_OF_THE_WEEK[new Date(date).getDay()];
-    console.log(dayOfTheWeek);
+    const dayOfTheWeek = DAYS_OF_THE_WEEK[new Date(date).getDay()]
     if(dayWiseForecast.has(dayOfTheWeek)) {
        let forecastForTheDay = dayWiseForecast.get(dayOfTheWeek);
        forecastForTheDay.push(forecast);
@@ -121,7 +120,7 @@ const loadHumidity = ({main: {humidity}}) => {
 
 const loadForecastUsingGeolocation = ()=> {
   navigator.geolocation.getCurrentPosition(({coords})=> {
-   const {latitude: lat, longitude:lon}= coords;
+   const {latitude: lat, longitude: lon}= coords;
    selectedCity = {lat, lon};
    loadData();
   }, error => console.log(error))
@@ -160,9 +159,9 @@ const onSearchChange = async (event) => {
   }
   if(value && (selectedCityText !== value)) {
     const listOfCities = await getCitiesUsingGeolocation(value);
-    let options ="";
-    for(let {lat, lon, name, state, country} of listOfCities) {
-     options += ` <option data-city-details='${JSON.stringify({lat, lon, name})}' value="${name}, ${state}, ${country}"></option>`
+    let options = "";
+    for(let { lat, lon, name, state, country } of listOfCities) { 
+     options += ` <option data-city-details='${JSON.stringify({ lat, lon, name })}' value="${name}, ${state}, ${country}"></option>`
     }
     document.querySelector("#cities").innerHTML = options;
    
@@ -173,7 +172,7 @@ const onSearchChange = async (event) => {
 
 const handleCitySelection = (event) => {
    selectedCityText = event.target.value;
-   let options = document.querySelector("cities > option");
+   let options = document.querySelector("#cities > option");
    if(options?.length){
     let selectedOption = Array.form(options).find(opt => opt.value === selectedCityText);
     selectedCity = JSON.parse(selectedOption.getAttribute("data-city-details"));
