@@ -118,7 +118,8 @@ background-color: rgb(36,154,191, 0.3)
 #five-day-forecast {
     grid-area: fiveday;
     text-align: center;
-    background-color: rgb(36,154,191, 0.3)
+    background-color: rgb(36,154,191, 0.3);
+    overflow: hidden;
    
 }
 
